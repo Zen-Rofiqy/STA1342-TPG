@@ -7,6 +7,8 @@ output:
   html_document: default
 ---
 
+File rmd, docx, pdf, excel : <https://github.com/Zen-Rofiqy/STA1342-TPG/tree/main/Tugas/Pertemuan%2002%20Tugas%201>
+
 ### Set Working Directory
 
 ```{r}
@@ -89,4 +91,8 @@ royston <- mvn(x, mvnTest = c("royston"), covariance = TRUE, multivariatePlot = 
 royston
 ```
 
-Berdasarkan beberapa uji normalitas ganda di atas, dapat disimpulkan bahwa **data menyebar multivariat normal**.
+#### iv. Dengan menggunakan Excel 
+
+![](images/Screenshot 2023-08-24 170027.png)
+
+Berdasarkan beberapa uji normalitas ganda di atas, dapat disimpulkan bahwa **data menyebar bivariat normal**.
