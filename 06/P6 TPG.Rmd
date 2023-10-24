@@ -1,0 +1,68 @@
+---
+title: "P6 TPG"
+author: "Dhea Dewanti & Nur Khamidah"
+date: "2023-09-18"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+# Analisis Profil
+
+## Input Data
+```{r}
+dataset <- read.csv("C:\\Dhea\\S2 IPB\\Asisten Dosen\\STA1342\\Pertemuan 6\\Data.csv",sep = ";")
+dataset
+```
+## Mengaktifkan Library
+```{r}
+library(profileR)
+```
+
+## Visualisasi
+```{r}
+mod <- pbg(data=dataset[,1:4], group=dataset[,5], original.name = TRUE, profile.plot = TRUE)
+```
+  
+Berdasarkan grafik terlihat bahwa profil pikun sejajar dengan profil tidak pikun. Selain ini kedua profil tidak berhimpit. Dengan kata lain berdasarkan grafik peningkatan faktor pikun dan tidak pikun terhadap beberapa subtes sama. Sedangkan rata-rata hasil skor pikun berbeda dengan yang tidak pikun, di mana yang tidak pikun lebih tinggi.
+
+```{r}
+# rata-rata tiap perlakuan untuk dua kelompok
+print(mod)
+
+# semua perhitungan analisis profil
+profil <- summary(mod)
+```
+
+
+## Uji Kesejajaran (Parallel Test)
+$$H_{0}:C\mu_{1}=C\mu_{2}$$
+
+$$H_{1}:C\mu_{1}\neq C\mu_{2}$$
+```{r}
+profil$`Ho: Profiles are parallel`
+```
+
+Berdasarkan statistik di atas, diperoleh F hitung sebesar 0.39 dengan p-value sebesar 0.76 sehingga pada taraf signifikansi 5%, H0 gagal ditolak. Jadi, dapat disimpulkan bahwa profil antara kelompok Usia (Pikun dan Tidak Pikun) adalah sejajar.
+
+## Uji Keberhimpitan
+$$H_{0}:1'\mu_{1}=1'\mu_{2}$$
+
+$$H_{1}:1'\mu_{1}\neq 1'\mu_{2}$$
+
+```{r}
+profil$`Ho: Profiles have equal levels`
+```
+
+Berdasarkan statistik di atas, diperoleh F hitung sebesar 17.44 dengan p-value 0.000128 sehingga pada taraf signifikansi 5%, H0 ditolak. Jadi, dapat disimpulkan bahwa profil antara kelompok Usia (Pikun dan Tidak Pikun) tidak berhimpit.
+
+## Uji Kesamaan
+$$H_{0}:C(\mu_{1}-\mu_{2})=0$$
+$$H_{1}:C(\mu_{1}-\mu_{2})\neq 0$$
+
+```{r}
+profil$`Ho: Profiles are flat`
+```
+Berdasarkan statistik di atas, diperoleh F hitung sebesar 51.80 dengan p-value 1.223077e-14 sehingga pada taraf signifikansi 5%, H0 ditolak. Jadi, dapat disimpulkan bahwa rata-rata untuk setiap sub tes pada lansia kelompok yang ada faktor kepikunan dan kelompok yang tidak ada faktor kepikunan menunjukkan konstanta yang berbeda.

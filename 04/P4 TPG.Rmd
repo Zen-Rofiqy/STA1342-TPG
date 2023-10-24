@@ -1,0 +1,224 @@
+---
+title: "TPG Pertemuan 4"
+author: "Dhea Dewanti & Nur Khamidah"
+date: "2023-09-05"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+# Perbandingan Dua Vektor Nilai Tengah Sampel Berpasangan
+## Input Data
+```{r}
+library(readxl)
+dataset <- read_excel("C:\\Dhea\\S2 IPB\\Asisten Dosen\\STA1342\\Pertemuan 4\\Data.xlsx")
+dataset
+```
+## Menghitung Selisih Essay Formal dan Informal
+```{r}
+d_kata = dataset[,1]-dataset[,3]
+d_kata_kerja = dataset[,2]-dataset[,4]
+
+X = data.frame(d_kata,d_kata_kerja)
+```
+
+## Menghitung vektor rataan dan matriks covarians
+```{r}
+xbar = apply(X, 2, mean)
+xbar
+cov_m = cov(X)
+cov_m
+```
+## Uji T2 Hotelling Dua Populasi Sampel Berpasangan
+
+$$H_{0}:\mu_{d}=\begin{bmatrix}
+0\\ 
+0
+\end{bmatrix}$$
+
+$$H_{1}:\mu_{d}\neq \begin{bmatrix}
+0\\ 
+0
+\end{bmatrix}$$
+
+```{r}
+library(MVTests)
+mean0 = c(0,0)
+result = OneSampleHT2(X,mu0=mean0,alpha=0.05)
+summary(result)
+```
+**Kesimpulan** : Tolak H0 pada taraf nyata 5% karena p-value < alpha  
+**Artinya** : Dengan tingkat kepercayaan 95%, dapat disimpulkan bahwa terdapat perbedaan kata dan kata kerja antara essay formal dengan essay informal.  
+Jika dilihat dari rata-rata selisih kata antara essay formal dengan essay informal dan rata-rata selisih kata kerja antara essay formal dengan
+essay informal di mana rata-rata selisih kata antara essay formal dengan essay informal lebih besar maka essay formal lebih baik daripada essay informal.
+
+## Selang Kepercayaan Simultan
+```{r}
+result$CI
+```
+## Selang Kepercayaan Bonferroni
+```{r}
+bon = function(mu,S,n,alpha,k){
+ p = length(mu)
+ lower = mu[k] - sqrt(S[k,k]/n) * abs(qt(alpha/(2*p), df=n-1))
+ upper = mu[k] + sqrt(S[k,k]/n) * abs(qt(alpha/(2*p), df=n-1))
+ c(lower = lower,upper = upper)
+}
+
+n = nrow(X)
+#Kata
+bon(xbar, cov_m,n,0.05,1)
+
+#Kata Kerja
+bon(xbar, cov_m,n,0.05,2)
+
+```
+
+# Perbandingan Dua Vektor Nilai Tengah Sampel Saling Bebas Ragam Sama
+## Input Data
+```{r}
+library(readxl)
+dataset <- read_excel("C:\\Dhea\\S2 IPB\\Asisten Dosen\\STA1342\\Pertemuan 4\\Data.xlsx",sheet="Soal 2")
+dataset
+
+# Memisahkan Data dari Populasi 1 dan 2
+data_cat = dataset[,1:2]
+data_man = dataset[,3:4]
+```
+## Menghitung vektor rataan dan matriks covarians
+```{r}
+xbar1 = apply(data_cat, 2, mean)
+xbar1
+
+xbar2 = apply(data_man, 2, mean)
+xbar2
+
+cov_m1 = cov(data_cat)
+cov_m1
+
+cov_m2 = cov(data_man)
+cov_m2
+
+n1 = nrow(data_cat)
+n2 = nrow(data_man)
+
+# S Gabungan
+s_gab = ((n1-1)*cov_m1+(n2-1)*cov_m2)/(n1+n2-2)
+s_gab
+
+```
+
+## Uji Hipotesis
+
+$$H_{0}:\mu_{1}=\mu_{2}$$
+
+$$H_{1}:\mu_{1}\neq \mu_{2}$$
+```{r}
+library(Hotelling)
+t2_homogen = hotelling.test(data_cat,data_man,var.equal=TRUE)
+t2_homogen
+```
+
+**Kesimpulan** : Gagal tolak H0 pada taraf nyata 5% karena p-value > alpha  
+**Artinya** : Pada Saat ragam Populasi Tes CPNS Manual diasumsikan sama dengan Ragam Populasi Tes CPNS CAT, maka dapat disimpulkan belum cukup bukti menolak Ho. Dengan kata lain, nilai Tes CPNS manual tidak berbeda dengan tes CPNS Cat dengan uji taraf nyata 5%.
+
+## Selang Kepercayaan Simultan
+```{r}
+T.ci = function(mu1, mu2, S_gab, n1, n2, avec=rep(1,length(mu)), level=0.95){
+p = length(mu1)
+mu = mu1-mu2
+cval = qf(level, p, n1+n2-p-1) * p * (n1+n2-2) / (n1+n2-p-1)
+zhat = crossprod(avec, mu)
+zvar = crossprod(avec, S_gab %*% avec)* (1/n1+1/n2)
+const = sqrt(cval * zvar)
+c(lower = zhat - const, upper = zhat + const)
+}
+
+#TWK
+T.ci(xbar1, xbar2, s_gab, n1,n2, avec=c(1,0),level=0.95)
+#TIU
+T.ci(xbar1, xbar2, s_gab, n1,n2, avec=c(0,1),level=0.95)
+```
+
+# Selang Kepercayaan Bonferroni
+```{r}
+bon = function(mu1, mu2 ,S, n1, n2, alpha, k){
+ p = length(mu1)
+ mu = mu1-mu2
+ lower = mu[k] - sqrt((S[k,k]) *(1/n1+1/n2))* abs(qt(alpha/(2*p), df=n1+n2-2))
+ upper = mu[k] + sqrt((S[k,k]) *(1/n1+1/n2))* abs(qt(alpha/(2*p), df=n1+n2-2))
+ ci = c(lower = lower,upper = upper)
+ names(ci)= c("lower","upper")
+ ci
+}
+
+#TWK
+bon(xbar1, xbar2, s_gab, n1, n2,0.05,1)
+#TIU
+bon(xbar1, xbar2, s_gab, n1, n2,0.05,2)
+```
+
+
+# Perbandingan Dua Vektor Nilai Tengah Sampel Saling Bebas Ragam Tidak Sama
+## Input Data
+```{r}
+library(readxl)
+dataset <- read_excel("C:\\Dhea\\S2 IPB\\Asisten Dosen\\STA1342\\Pertemuan 4\\Data.xlsx",sheet="Soal 2")
+dataset
+
+# Memisahkan Data dari Populasi 1 dan 2
+data_cat = dataset[,1:2]
+data_man = dataset[,3:4]
+```
+## Menghitung vektor rataan dan matriks covarians
+```{r}
+xbar1 = apply(data_cat, 2, mean)
+xbar1
+
+xbar2 = apply(data_man, 2, mean)
+xbar2
+
+cov_m1 = cov(data_cat)
+cov_m1
+
+cov_m2 = cov(data_man)
+cov_m2
+
+n1 = nrow(data_cat)
+n2 = nrow(data_man)
+```
+
+## Uji Hipotesis
+
+$$H_{0}:\mu_{1}=\mu_{2}$$
+
+$$H_{1}:\mu_{1}\neq \mu_{2}$$
+```{r}
+library(Hotelling)
+t2_not_homogen = hotelling.test(data_cat,data_man,var.equal=FALSE)
+t2_not_homogen
+```
+
+**Kesimpulan** : Gagal tolak H0 pada taraf nyata 5% karena p-value > alpha  
+**Artinya** : Pada Saat ragam Populasi Tes CPNS Manual diasumsikan tidak sama dengan Ragam Populasi Tes CPNS CAT, maka dapat disimpulkan belum cukup bukti menolak Ho. Dengan kata lain, nilai Tes CPNS manual tidak berbeda dengan tes CPNS Cat dengan uji taraf nyata 5%.
+
+## Selang Kepercayaan Simultan
+```{r}
+T.ci = function(mu1, mu2, S1, S2, n1, n2, avec=rep(1,length(mu)), level=0.95){
+p = length(mu1)
+mu = mu1-mu2
+cval = qchisq(level, p)
+zhat = crossprod(avec, mu)
+zvar = crossprod(avec, S1 %*% avec)/n1 + crossprod(avec, S2 %*% avec)/n2
+const = sqrt(cval * zvar)
+c(lower = zhat - const, upper = zhat + const)
+}
+
+#TWK
+T.ci(xbar1, xbar2, cov_m1, cov_m2, n1,n2, avec=c(1,0),level=0.95)
+#TIU
+T.ci(xbar1, xbar2, cov_m1, cov_m2, n1,n2, avec=c(0,1),level=0.95)
+```
+

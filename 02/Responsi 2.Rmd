@@ -1,0 +1,55 @@
+---
+title: "P2 TPG"
+author: "Dhea Dewanti & Nur Khamidah"
+date: "2023-08-22"
+output: html_document
+---
+# Input Data
+```{r}
+x<-c(8.8, 8.5, 7.7, 4.9, 9.6, 10, 11.5, 11.6, 11.2, 10.7, 10, 6.8, 2589, 1186, 291,1276, 6633, 12125,
+     36717, 43319, 10530, 3931, 1536, 61400)
+data<-matrix(x, nrow=12, ncol=2)
+data
+```
+# Mengaktifkan Library
+```{r}
+#install.packages("MVN")
+library(MVN)
+```
+
+# Menggunakan Uji normalitas ganda menggunakan Mardia's Skewness
+```{r}
+mardia <- mvn(data, mvnTest = c("mardia"), covariance = TRUE, multivariatePlot = "qq")
+mardia
+```
+Dari hasil R diatas akan dilakukan pengujian hipotesis terhadap mardia skewness test sebagai berikut :  
+Ho : Peubah ganda mengikuti distribusi normal  
+H1 : Peubah ganda tidak mengikuti distribusi normal  
+Sehingga dikesimpulan p-value = 0.02523 < α = 0.05 yaitu menolak Ho.   Artinya bahwa peubah ganda tidak mengikuti distribusi normal. Dari Q-Q plot yang dihasilkan dari output R dibawah ini juga menunjukan bahwa sebaran dari data tidak mengikuti distribusi normal.
+
+# Uji normalitas ganda menggunakan Henze-Zikler Test
+```{r}
+henze<-mvn(data, mvnTest = c("hz"), covariance = TRUE, multivariatePlot = "none")
+henze
+```
+Dari Henze-Zirkler's Multivariate Normality Test menghasilkan nilai p-value = 0.004125 < α = 0.05. Hal ini berarti data mendukung untuk menolak Ho, dengan demikian dapat dikatakan bahwa peubah-peubah tersebut tidak mengikuti distribusi normal ganda.
+
+# Uji Normalitas ganda menggunakan Royston
+```{r}
+royston<-mvn(data, mvnTest = c("royston"), covariance = TRUE, multivariatePlot = "persp")
+royston
+```
+Dari Royston Test menghasilkan nilai p-value = 0.0064 < α = 0.05. Hasil uji ini juga menunjukkan data mendukung untuk menolak Ho, dengan demikian dapat dikatakan bahwa peubah-peubah tersebut tidak mengikuti distribusi normal ganda. 
+```{r}
+royston<-mvn(data, mvnTest = c("royston"), covariance = TRUE, multivariatePlot = "contour")
+royston
+```
+Berdasarkan beberapa uji normalitas ganda di atas, dapat disimpulkan bahwa data tidak menyebar multivariat normal. Sehingga dapat dilakukan penangan lanjutan terhadap data tersebut, dapat menggunakan transformasi normal atau metode lainnya.
+
+
+
+
+
+
+
+

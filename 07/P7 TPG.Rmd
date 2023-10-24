@@ -1,0 +1,95 @@
+---
+title: "TPG Pertemuan 7"
+author: "Dhea Dewanti & Nur Khamidah"
+date: "2023-09-25"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+# Package  
+Pada Praktikum kali ini package yang dibutuhkan adalah  
+• factoextra  
+• ggcorrplot  
+• openxlsx  
+Silahkan install jika belum ada  
+```{r}
+#install.packages("factoextra")
+#install.packages("ggcorrplot")
+#install.packages("openxlsx")
+library(factoextra)
+library(ggcorrplot)
+```
+
+# Data Pelari Wanita  
+Berikut adalah data catatan waktu hasil tujuh nomor cabang lari atletik wanita yang berasal dari 55 negara pada salah satu event olimpiade yaitu lari 100 meter, 200 meter, 400 meter, 800 meter, 1500 meter, 3000 meter, dan maraton. Tiga nomor cabang lari pertama dicatat dalam satuan detik, sedangkan empat nomor yang lain dalam menit.
+```{r}
+data_women_records <- openxlsx::read.xlsx("C:\\Dhea\\S2 IPB\\Asisten Dosen\\STA1342\\Pertemuan 7\\women_track_records.xlsx")
+head(data_women_records)
+```
+**Note** : `openxlsx::read.xlsx` berarti menggunakan fungsi `read.xlsx` yang berada pada package `openxlsx` tanpa memanggil packagenya terlebih dahulu menggunakan library. Fungsi `head` digunakan untuk menampilkan data 6 baris pertama.
+```{r}
+rownames(data_women_records) <- data_women_records$country
+data_women_records <- data_women_records[,-8]
+```
+`data_women_records[,-8]` berarti kita menghilangkan kolom kedelapan pada data (kolom `country`).
+
+# Tahap 2 Eksplorasi dengan menggunakan matrix korelasi
+```{r}
+cor_women <- cor(data_women_records)
+cor_women
+```
+
+Agar mudah dilihat matrix korelasi ini bisa dibuat dalam bentuk grafik dengan cara berikut.
+```{r}
+ggcorrplot(cor_women,type="lower",lab = TRUE)
+```
+  
+# Tahap 3 Menerapkan PCA (AKU)
+Dalam R, Penerapan PCA ini dapat dilakukan dengan menggunakan fungsi `prcomp`. Fungsi ini memiliki argumen `scale` dan `center`. Jika kedua argumen ini `TRUE` maka matrix yang digunakan untuk menghitung PCA adalah matrix korelasi. Namun, jika kedua argumen ini `FALSE` atau `scale=FALSE`, maka matrix yang digunakan adalah matrix covariance.
+```{r}
+pca_women_records <- prcomp(data_women_records,scale=TRUE,center=TRUE)
+summary(pca_women_records)
+```
+Hasil yang dikeluarkan dari sintaks di atas terdiri dari tiga macam, yaitu Standard deviation, Proportion of Variance dan Cumulative Proportion dari masing-masing Komponen Utama (Principal Component).  
+* Standard deviaton merupakan akar dari akar ciri (eigenvalue). Dalam hal ini
+akar ciri berperan sebagai variance dari masing-masing komponen utama.  
+* Proportion of Variance didapatkan dari akar ciri pada masing-masing komponen dibagi dengan total akar ciri. Proportion of Variance menjelaskan seberapa besar keragaman peubah asal yang dapat dijelaskan oleh masing-masing komponen utama. Semakin besar nilainya berarti semakin baik pula komponen utama tersebut untuk merepresentasikan peubah asal.  
+* Cumulative Proportion menjelaskan seberapa besar keragaman yang dapat dijelaskan oleh komponen utama secara kumulatif. Misalnya saja dengan menggunakan dua komponen utama saja (PC1 dan PC2), sudah bisa menjelaskan lebih dari 92% keragaman dari data.  
+Berdasarkan hal ini, kita akan memilih menggunakan dua komponen utama saja.
+```{r}
+fviz_screeplot(pca_women_records,geom="line")
+```  
+  
+Hal lain yang bisa dilakukan untuk menentukan berapa banyak komponen utama yang digunakan adalah dengan `screeplot`. Fungsi untuk menampilkan screeplot pada R adalah `fviz_screeplot` yang didapat dari package `factoextra`. Banyaknya komponen utama bisa ditentukan dengan screeplot dengan melihat di
+komponen utama yang mana garisnya berbentuk seperti siku (elbow).  
+Pada gambar diatas, garis membentuk siku saat berada di komponen utama kedua (dimension kedua) sehingga banyaknya komponen utama yang digunakan sebanyak dua (Komponen Utama 1 dan Komponen Utama 2).  
+  
+# Tahap 4 Interpretasi PCA (AKU)  
+
+Interpretasi metode PCA dapat dilakukan dengan menggunakan vektor ciri pada masing-masing komponen utama. Semakin besar vektor ciri pada komponen utama tertentu, maka semakin besar pula kontribusi dari peubah asal untuk membangun komponen utama tersebut. Catatan lain yang perlu diperhatikan adalah nilai negatif pada vektor ciri menandakan peubah asal memberikan kontribusi yang berkembalikan pada pembentukan komponen utama. Dalam konteks vektor ciri negatif, semakin besar nilai peubah asal semakin kecil nilai pada komponen utama.  
+```{r}
+pca_women_records$rotation
+```
+
+Karena kita hanya menggunakan dua komponen saja, maka vector ciri yang akan
+dinterpretasikan hanya pada PC1 dan PC2. PC1 memiliki vektor ciri yang relatif sama yaitu berkisar di 0.3 untuk semua cabang lomba. Vektor ciri yang relatif sama ini menandakan bahwa kontribusi peubah asal untuk membangun komponen utama ini relatif sama. Artinya nilai-nilai yang ada di PC1 (score value) dapat menggambarkan waktu lari untuk semua cabang lomba. Oleh karena itu kita dapat dapat menggunakan PC1 untuk menentukan negara mana yang memiliki pelari tercepat untuk semua kategori lomba.  
+Vektor ciri di PC2 memiliki nilai positif untuk cabang lari jarak dekat (100m -400m) dan nilai negatif untuk cabang lari jarak jauh (800m-marathon). Hal ini berarti semakin besar score value pada PC2 maka waktu lari cabang jarak dekat semakin lambat namun waktu lari untuk cabang jarak jauh semakin cepat. Oleh karena itu, PC2 dapat digunakan untuk menentukan negara mana yang pada cabang lari jarak dekat waktunya mirip seperti cabang lari jarak jauh.  
+  
+**Note**: Interpretasi komponen utama memiliki subjektifitas yang tinggi, oleh karena itu setiap orang menginterpretasikanya berbeda.  
+  
+Hal terakhir yang bisa diinterpretasikan adalah score value pada PC1 dan PC2. Score value merupakan observasi/koordinat baru pada peubah komponen utama. Dalam konteks data pelari diatas, observasinya adalah negara, sehingga kita dapat memberi insight cabang perlombaan lari dari setiap negara.
+Untuk melihat score value pada komponen utama dapat dilihat dengan menggunakan
+sintaks berikut.
+```{r}
+pca_women_records$x
+```
+Agar lebih mudah dalam menginterpretasikan score value maka digunakaan grafik
+di bawah ini.
+```{r}
+fviz_pca_ind(pca_women_records,col.ind = "darkred")
+```
+  
+Berdasarkan grafik score value dapat diketahui bahwa negara yang memiliki catatan waktu pelari terlambat untuk semua cabang lomba adalah negara wsamoa. Hal ini dikarenakan wsamoa score value wsakoa untuk PC1 (Dim1) paling besar diantara yang lain. Walaupun negara wsamoa memiliki cabang lari terlama disemua cabang lomba, namun perbedaan waktu terkecil antara pelari jarak jauh dan jarak dekat adalah negara wsamoa. Hal ini berarti pelari untuk lomba jarak dekat sangat lambat karena memiliki waktu yang hampir mirip seperti pelari jarak jauh. Sedangkan negara yang memiliki pelari tercepat untuk
+semua cabang lomba adalah gdr.

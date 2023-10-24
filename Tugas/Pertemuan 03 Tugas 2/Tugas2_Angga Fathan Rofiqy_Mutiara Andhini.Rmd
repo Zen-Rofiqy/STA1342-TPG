@@ -1,0 +1,129 @@
+---
+title: "Tugas 2"
+author: "Angga Fathan Rofiqy & Mutiara Andhini"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+![](images/Screenshot%202023-09-02%20161753.png){width="545"}
+
+# No 1
+
+## Data
+
+```{r}
+# Diketahui
+xbar <- c(4.64, 45.40, 9.96)
+S <- matrix(c(2.88, 10.01, -1.81, 
+              10.01, 199.79, -5.64, 
+              -1.81, -5.64, 3.63), 3, 3)
+miu0 <- c(4, 50, 10)
+n <- 20
+p <- 3 #kadar gula, kadar garam, kadar potassium
+```
+
+## Uji Hipotesis
+
+$$
+\begin{align*}
+H_0 &: \mathbf{μ}' = \begin{bmatrix} 4 & 50 & 10 \end{bmatrix} \\
+H_1 &: \mathbf{μ}' \neq \begin{bmatrix} 4 & 50 & 10 \end{bmatrix}
+\end{align*}
+$$
+
+## Statistik Uji
+
+$$
+T^2 = n \left(\mathbf{\bar{x}} - \boldsymbol{\mu}\right)' \mathbf{S}^{-1} \left(\mathbf{\bar{x}} - \boldsymbol{\mu}\right)
+$$
+
+```{r}
+# Menghitung T-squared statistik
+Ts <- n*t(xbar-miu0)%*%solve(S)%*%(xbar-miu0)
+Ts
+```
+
+## Titik Kritis
+
+$$
+c^2 =\frac{(n-1)p}{n-p} F_{p,(n-p)}(\alpha)
+$$
+
+```{r}
+# Nilai kritis F(3, 17) (α = 0.10)
+Ftabel <- qf(1 - 0.10, p, (n-p))
+
+Tk <- (n-1)*p*Ftabel/(n-p)
+Tk
+```
+
+## Penarikan Kesimpulan
+
+```{r}
+# Uji hipotesis
+if (Ts > Tk) {
+  cat("T-squared =", Ts, ">", "Titik Kritis =", Tk, "\n")
+  cat("Maka, Tolak H0.\n")
+} else {
+  cat("T-squared =", Ts, "<", "Titik Kritis =", Tk, "\n")
+  cat("Maka, Tak Tolak H0.\n")
+}
+```
+
+# No 2
+
+## Diketahui :
+
+```{r}
+n <- 3
+X <- matrix(c(6, 9,
+              10, 6,
+              8, 3), ncol=2, byrow=T)
+mu <- as.matrix(c(9, 5))
+```
+
+## Uji Hipotesis
+
+$$
+\begin{align*}
+H_0 &: \mathbf{μ}' = \begin{bmatrix} 9 & 5  \end{bmatrix} \\
+H_1 &: \mathbf{μ}' \neq \begin{bmatrix} 9 & 5  \end{bmatrix}
+\end{align*}
+$$
+
+## Cari Statistik Uji $T^2$ Hotelling
+
+$$
+T^2 = n \left(\mathbf{\bar{x}} - \boldsymbol{\mu}\right)' \mathbf{S}^{-1} \left(\mathbf{\bar{x}} - \boldsymbol{\mu}\right)
+$$
+
+```{r}
+p <- 2
+xbar <- as.matrix(colSums(X)/n)
+S <- cov(X)
+T.2 <- n * t(xbar - mu) %*% solve(S) %*% (xbar - mu)
+```
+
+## Cari Titik kritis $C^2$
+
+$$
+c^2 =\frac{(n-1)p}{n-p} F_{p,(n-p)}(\alpha)
+$$
+
+```{r}
+alpha <- 10/100
+c.2 <- (n-1) * p / (n-p) * qf(1 - alpha, p,  n - p)
+```
+
+## Kesimpulan
+
+```{r}
+# Uji hipotesis
+if (T.2 > c.2) {
+  cat("T-squared =", T.2, ">", "Titik Kritis =", c.2, "\n")
+  cat("Maka, Tolak H0.\n")
+} else {
+  cat("T-squared =", T.2, "<", "Titik Kritis =", c.2, "\n")
+  cat("Maka, Tak Tolak H0.\n")
+}
+```

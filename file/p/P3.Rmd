@@ -1,0 +1,98 @@
+---
+title: "TPG Pertemuan 3"
+author: "Dhea Dewanti & Nur Khamidah"
+date: "2023-08-30"
+output: html_document
+---
+
+# Input Data
+```{r}
+library(readxl)
+data <- read_excel("C:\\Dhea\\S2 IPB\\Asisten Dosen\\STA1342\\Pertemuan 3\\Data.xlsx")
+data
+```
+# Menghitung vektor rataan dan matriks covarians
+```{r}
+xbar = apply(data[,2:3], 2, mean)
+xbar
+
+cov_m = cov(data[,2:3])
+cov_m
+```
+# Uji T2 Hotelling Satu Populasi
+$$H_{0}:\mu_{0}=\begin{bmatrix}
+55\\ 
+60
+\end{bmatrix}$$
+
+$$H_{1}:\mu_{0}\neq \begin{bmatrix}
+55\\ 
+60
+\end{bmatrix}$$
+```{r}
+#Dengan Package "MVTEsts"
+library(MVTests)
+mean0 = c(55,60)
+result = OneSampleHT2(data[,2:3],mu0=mean0,alpha=0.1)
+summary(result)
+
+#Dengan Package "ICSNP"
+library(ICSNP)
+test = HotellingsT2(data[,2:3],mu=mean0,test="f")
+print(test)
+```
+
+**Kesimpulan** : Tolak H0 pada taraf nyata 10% karena p-value < alpha  
+**Artinya** : Dengan tingkat kepercayaan 90%, dapat disimpulkan bahwa minimal ada salah satu dari rata-rata ujian matematika dan fisika yang memiliki nilai rata-rata tidak sama dengan nilai 55 atau nilai 60.
+
+# Menggambar Elips Kepercayaan
+```{r}
+library(ellipse)
+n = 10
+p = 2
+plot(ellipse(cov_m,centre=xbar,level = 0.90, t=sqrt(((n-1)*p/(n*(n-p)))*qf(0.90,p,n-p))),type="l",main = "Ellips Kepercayaan 90%")
+points(xbar[1],xbar[2])
+
+#Siswa dengan skor matematika 65 dan fisika 70
+points(65,70,col = "red")
+```
+  
+Berdasarkan gambar terlihat bahwa nilai tersebut dalam elips, dengan kata lain masuk ke dalam elips kepercayaan.
+
+# Selang Kepercayaan Simultan
+```{r}
+T.ci = function(mu, Sigma, n, avec=rep(1,length(mu)), level=0.95){
+p = length(mu)
+cval = qf(level, p, n-p) * p * (n-1) / (n-p)
+zhat = crossprod(avec, mu)
+zvar = crossprod(avec, Sigma %*% avec) / n
+const = sqrt(cval * zvar)
+c(lower = zhat - const, upper = zhat + const)
+}
+
+n = 10
+
+#Matematika
+T.ci(mu=xbar, Sigma=cov_m, n=n, avec=c(1,0),level=0.9)
+
+#Fisika
+T.ci(mu=xbar, Sigma=cov_m, n=n, avec=c(0,1),level=0.9)
+```
+# Selang Kepercayaan Bonferroni
+```{r}
+bon = function(mu,S,n,alpha,k){
+ p = length(mu)
+ lower = mu[k] - sqrt(S[k,k]/n) * abs(qt(alpha/(2*p), df=n-1))
+ upper = mu[k] + sqrt(S[k,k]/n) * abs(qt(alpha/(2*p), df=n-1))
+ c(lower = lower,upper = upper)
+}
+
+#Matematika
+bon(xbar, cov_m,10,0.1,1)
+
+#Fisika
+bon(xbar, cov_m,10,0.1,2)
+
+```
+
+

@@ -1,0 +1,92 @@
+---
+title: "Responsi 1 TPG"
+author: "Dhea Dewanti & Nur Khamidah"
+date: "2023-08-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Membuat Matriks 
+```{r}
+#Mendefinisikan matriks A
+A <- matrix(c(1,3,4,2), #Vektor elemen matriks
+            2,               #Jumlah baris
+            2)               #Jumlah kolom
+A
+
+B <- matrix(c(5,4,-3,3,-1,8,5,2,7),3,3)
+B
+C <- matrix(c(5,3,5,4,-1,2,-3,8,7),3,3,byrow=TRUE)
+C
+```
+# Teras Matriks 
+```{r}
+sum(diag(A))
+sum(diag(B))
+```
+
+# Transpose Matriks 
+```{r}
+A
+t(A)
+B
+t(B)
+
+D <- matrix(c(1,4,3,1,1,3),2,3)
+D
+t(D)
+```
+# Determinan Matriks 
+```{r}
+det(A)
+det(B)
+```
+
+# Invers Matriks 
+```{r}
+solve(A)
+solve(B)
+```
+# Operasi Matriks 
+```{r}
+#Penjumlahan
+A+A
+
+#Pengurangan
+A-t(A)
+
+#Perkalian Matriks dengan skalar
+A*2
+
+#Perkalian Matriks dengan Matriks
+A%*%D
+```
+# Mencari Matriks Korelasi dan Matriks Kovarian 
+```{r}
+kov <- matrix(c(25,-2,4,-2,4,1,4,1,9),3,3)
+kor <- cov2cor(kov)
+kor
+```
+# Mencari Simpangan Baku dan Matriks Kovarian 
+```{r}
+sqrt(diag(kov))
+diag(sqrt(diag(kov)))
+```
+
+
+# Akar Ciri dan Vektor Ciri 
+```{r}
+E <- matrix(c(9,-2,-2,6),2,2)
+akar_ciri <- eigen(E)$values
+akar_ciri
+vektor_ciri <- eigen(E)$vectors
+vektor_ciri
+```
+
+
+
+
+

@@ -1,0 +1,75 @@
+---
+title: "P5 TPG"
+author: "Dhea Dewanti & Nur Khamidah"
+date: "2023-09-12"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+# Soal 1
+## Input Data
+```{r}
+library(car)
+jagung = read.table(header=T,text =
+               "
+Varietas Y1 Y2
+v1 6 7
+v1 5 9
+v2 4 6
+v2 6 6
+v2 4 7
+v3 5 4
+v3 6 4
+")
+
+jagung
+```
+## MANOVA 
+```{r}
+mod1 = Manova(lm(cbind(Y1,Y2)~Varietas,data=jagung),type="III")
+summary(mod1,multivariate=TRUE)
+```
+**Lihat pada Multivariate Tests: Varietas baris Wilks**  
+Pada taraf signifikansi 5%, H0 gagal ditolak karena p-value = 0.071870 > 0.05.  
+**Kesimpulan:**  
+Tidak cukup bukti untuk menyatakan bahwa minimal ada 1 varietas yang berpengaruh terhadap produksi dan bobot jagung pada taraf nyata 5%.
+
+
+# Soal 4
+## Input Data
+```{r}
+library(car)
+diet = read.table(header=T,text =
+               "
+Kel	P	K	KP
+K1	20	5	18
+K1	25	9	8
+K1	23	15	20
+K1	16	9	22
+K1	20	6	22
+K2	28	7	14
+K2	25	14	5
+K2	26	9	20
+K2	19	15	22
+K2	29	14	12
+K3	15	6	3
+K3	22	8	12
+K3	27	9	14
+K3	21	10	7
+K3	17	9	1
+")
+
+diet
+```
+## MANOVA 
+```{r}
+mod2 = Manova(lm(cbind(P,K,KP)~Kel,data=diet),type="III")
+summary(mod2,multivariate=TRUE)
+```
+**Lihat pada Multivariate Tests: Kel baris Wilks**  
+Pada taraf signifikansi 5%, H0 gagal ditolak karena p-value = 0.088300 > 0.05.  
+**Kesimpulan:**  
+Tidak cukup bukti untuk menolak H0 atau dengan kata lain metode pemberian informasi dari setiap kelompok tidak memberikan pengaruh yang nyata pada penilaian terhadap ketiga poin pada taraf nyata 5%.
