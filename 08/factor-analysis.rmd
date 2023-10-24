@@ -1,0 +1,206 @@
+# Praktikum 8 - Analisis Faktor
+Dhea Dewanti & Nur Khamidah
+
+## Perkenalan Analisis Faktor
+
+Analisis Faktor (_Factor Analysis_ atau FA) adalah sebuah teknik statistik yang digunakan untuk memahami hubungan antara sejumlah besar variabel yang diamati dalam satu set data dengan cara mengidentifikasi faktor-faktor yang mendasarinya. Tujuannya adalah untuk mereduksi dimensi data dengan mengidentifikasi faktor-faktor laten atau konsep yang mendasari variasi dalam data, sehingga Anda dapat memahami struktur yang mendasari data dengan lebih baik.
+
+Beberapa hal penting yang diperhatikan dalam FA:
+
+- FA digunakan untuk reduksi dimensi, atau mengurangi jumlah variabel yang kompleks atau terkait erat dalam satu set data menjadi sejumlah faktor yang lebih sedikit.
+- Yang dimaksud dengan faktor-faktor laten adalah variabel yang tidak diamati secara langsung tetapi dapat diestimasi dari variabel-variabel yang diamati.
+- FA berfokus pada mengidentifikasi faktor-faktor yang menjelaskan sebanyak mungkin variasi dalam data. 
+- Dalam FA, sering kali digunakan rotasi faktor untuk menginterpretasikan faktor-faktor laten yang ditemukan. Rotasi membantu dalam menentukan bagaimana faktor-faktor tersebut terhubung satu sama lain dan dengan variabel-variabel pengamatan.
+- FA bisa membantu dalam pemahaman yang lebih dalam tentang data dan mengungkap pola-pola tersembunyi.
+
+Ada 2 jenis FA:
+
+1. **_Exploratory Factor Analysis (EFA)_** : digunakan untuk mengeksplorasi dan memahami hubungan antara variabel-variabel yang diamati tanpa memiliki hipotesis sebelumnya tentang bagaimana faktor-faktor terkait. Dalam EFA, akan dijawab pertanyaan seperti berapa banyak faktor yang diperlukan untuk menjelaskan variasi skor yang diamati dan bagaimana hubungan antara setiap item dengan faktor-faktor ini. 
+2. **_Confirmatory Factor Analysis (CFA)_** : digunakan untuk menguji apakah model faktor yang dihipotesiskan sesuai dengan data dengan baik. Dalam CFA terdapat teori atau hipotesis spesifik menyatakan faktor mana yang seharusnya memuat item tertentu. Dengan kata lain, dengan CFA ingin diketahui sejauh mana model yang diusulkan sesuai dengan apa yang ditemukan dalam data yang sesungguhnya.
+
+Dalam materi kali ini, FA yang dipelajari dan dipraktikkan adalah EFA.
+
+## Package
+
+Beberapa _package_ yang dibutuhkan dalam analisis faktor kali ini antara lain:
+```{r}
+#install.packages("psych")
+#install.packages("ggcorrplot")
+```
+
+Kemudian _package_ dapat digunakan dengan menjalankan baris kode berikut:
+```{r}
+library(psych)
+library(ggcorrplot)
+```
+
+## Data
+Data yang digunakan merupakan data pelamar kerja, di mana seorang HRD ingin mengindentifikasi faktor-faktor yang dapat menjelaskan 12 peubah yang telah dikumpulkan oleh departemen mereka untuk mengukur setiap pelamar kerja. Pegawai HRD menilai pelamar kerja dengan menggunakan skala 1 (rendah) sampai 10 (tinggi). Mereka menggumpulkan penilaian untuk 50 pelamar kerja.
+
+```{r}
+data_jobApp <- read.csv("https://raw.githubusercontent.com/nurkhamidah/dat/main/job-applicants.csv", sep = ";")
+head(data_jobApp)
+```
+
+## Melakukan Analisis Faktor
+
+#### Tahap 1 - Eksplorasi Data dengan Melihat Korelasi Antar Peubah
+
+Tujuan utama melihat korelasi data dalam analisis faktor adalah untuk memahami pola hubungan antara variabel-variabel dan memastikan bahwa data yang digunakan dalam analisis faktor sesuai dan relevan. Hal ini akan membantu dalam pemilihan variabel, penentuan jumlah faktor, dan interpretasi hasil analisis faktor.
+
+```{r}
+cor_jobApp <- cor(data_jobApp)
+ggcorrplot(cor_jobApp, type = "lower", lab = TRUE)
+```
+
+Jika  diperhatikan hasil korelasi tersebut akan diperoleh beberapa kelompok peubah yang memiliki korelasi yang besar dalam kelompok peubah tersebut namun korelasinya dengan peubah diluar kelompok tersebut kecil. Sebagai ilustrasi, peubah **_Potential_** dengan **_Academic record_**, **_Experience_**, dan **_Job Fit_** memiliki korelasi yang besar dibandingkan dengan peubah lainnya. Peubah-peubah dengan korelasi tinggi ini bisa diukur dengan baik oleh suatu peubah laten yang disebut **_factor_**.
+
+#### Tahap 2 - Menentukan Banyaknya Factor
+
+Analisis Faktor di R dapat dilakukan dengan menggunakan fungsi `fa()` dari _package_ `psych`. Fungsi `fa()` memiliki argumen `fm` yang menyatakan metode pendugaaan dan `rotate` yang menyatakan jenis rotasi yang digunakan. Argumen `nfactor` menyatakan banyaknya factornya.
+
+Daftar yang bisa diisi dalam argumen `fm` adalah sebagai berikut:
+
+| isi argumen | kegunaan |
+| ----------- | -------- |
+| `minres`    | komponen utama (_default_) |
+| `ols`       | kuadrat terkecil |
+| `wls`       | kuadrat terkecil terboboti |
+| `gls`       | kuadrat terkecil terampat  |
+| `pa`        | metode faktor utama |
+| `ml`        | metode kemungkinan maksimum |
+| `alpha`     | analisis faktor alpha |
+
+Daftar yang bisa diisi dalam argumen `rotate` adalah sebagai berikut:
+
+| isi argumen | kegunaan |
+| ----------- | -------- |
+| `oblimin` | direct oblimin (_default_) |
+| `none`    | tanpa rotasi |
+| `varimax` | varimax |
+| `quartimax` | quartimax |
+| `equamax` | equamax  |
+| `promax` | promax/oblique |
+
+Untuk kasus data pelamar kerja ini, kita akan gunakan metode pendugaan komponen utama. Banyaknya factor yang akan diduga kita set sebanyak peubah yang ada di data pelamar kerja ini.
+
+| Note: |
+| ---------- |
+| Metode pendugaan komponen utama secara default menggunakan semua peubah yang ada di data asli. Namun, pada fungsi `fa()` pengguna harus menentukan terlebih dahulu jumlah factor-nya. Aplikasi lain seperti SAS SPSS dan Minitab tidak perlu menginputkan jumlah factor-nya. |
+
+1. Penentuan banyak factor menggunakan **_proportion of the sample variance explained_**
+
+```{r}
+fa_jobApp <- fa(data_jobApp, nfactors = 12, fm = "minres", rotate = "none")
+fa_jobApp$Vaccounted
+```
+
+**MR1** sampai **MR12** merupakan nama dari faktor-faktor yang telah diekstrasksi. Kemudian, **SS loadings** merupakan keragamaan dari masing-masing factor.
+
+Jika dilihat pada **_Cumulative Proportion_**, dengan menggunakan 2 factor saja sudah bisa menjelaskan lebih dari 71% keragamaan dari data asal. Namun, penambahan **_Cumulative Proportion_** dari penggunaan faktor 2 sampai faktor 4 masih cukup besar sehingga masih masuk akal untuk menggunakan 4 factor.
+
+2. Menggunakan **_scree plot_**
+
+```{r}
+SS_loadings <- fa_jobApp$Vaccounted[1,]
+number_of_factor <- seq_along(SS_loadings)
+plot(number_of_factor, SS_loadings, type = "b", main = "Scree Plot", pch = 16)
+```
+
+Berdasarkan _scree plot_, pola garis yang berbentuk seperti siku tangan berada pada factor kedua. Sehingga menurut _scree plot_ cukup 2 factor saja yang digunakan.
+
+Karena menurut _scree plot_ dan _proportion of variance explained_ berbeda, akan dicoba keduanya dan melihat factor mana yang lebih mudah diinterpretasikan.
+
+#### Tahap 3 - Estimasi Factor Loading (Menggunakan 4 Factor)
+
+```{r}
+fa_jobApp4 <- fa(data_jobApp, nfactors = 4, fm = "minres", rotate = "none")
+print(fa_jobApp4$loadings, cut = 0)
+```
+
+Jika kita perhatikan, nilai factor loading yang besar berkumpul di peubah factor yang **pertama**, sehingga akan sulit untuk menginterpretasikan factor 2 sampai factor 4. Oleh karena itu, kita bisa melakukan rotasi faktor agar lebih mudah menginterpretasikanya.
+
+| Note: |
+| ---------- |
+| Argumen `cut=0` berarti kita menampilkan semua factor loading, jika kita tidak tentukan isi dari argumen `cut`, secara default R tidak menampilkan nilai yang berkisar antara [-0.1, 0.1] |
+
+#### Tahap 3 - Estimasi Factor Loading (Menggunakan 2 Factor)
+
+```{r}
+fa_jobApp2 <- fa(data_jobApp, nfactors = 2, fm = "minres", rotate = "none")
+print(fa_jobApp2$loadings, cut = 0)
+```
+
+Untuk dua faktor pun, nilai factor loading yang besar terkumpul pada faktor pertama sehingga akan sulit diinterpretasikan. Oleh karena itu, kita akan melakukan rotasi faktor untuk penggunaan dua factor ini.
+
+| Note: |
+| ---------- |
+| Ukuran besar atau kecil dari factor loading itu relatif. Beberapa buku menyebutkan nilai diatas 0.6 sudah besar. |
+
+#### Tahap 4 - Rotasi Factor (Menggunakan 4 Factor)
+
+```{r}
+fa_jobApp4_rotate <- fa(data_jobApp, nfactors = 4, fm = "minres", rotate = "varimax")
+print(fa_jobApp4_rotate$loadings, cut = 0)
+```
+
+Setelah dirotasi menggunakan metode **varimax**, terlihat bahwa factor loadings tidak yang bernilai besar tidak lagi berkumpul pada satu faktor saja sehingga memungkinkan diinterpretasikan untuk setiap faktor yang terbentuk.
+
+Fitur lain yang menarik untuk dibahas dalam analisis factor adalah **_Communality_**. _Communality_ menjelaskan tentang banyaknya keragamaan yang dapat dijelaskan oleh factor untuk masing-masing peubah asal. Semakin nilainya mendekati satu semakin baik keragamaan yang dapat dijelaskan.
+
+```{r}
+fa_jobApp4_rotate$communalities
+```
+
+Dalam penggunan 4 factor ini nilai _communality_ untuk semua peubah asal bernilai besar (lebih dari 0.6) sehingga dengan penggunaan 4 faktor sudah tepat.  
+
+#### Tahap 4 - Rotasi Factor (Menggunakan 2 Factor)
+
+```{r}
+fa_jobApp2_rotate <- fa(data_jobApp, nfactors = 2, fm = "minres", rotate = "varimax")
+print(fa_jobApp2_rotate$loadings, cut = 0)
+```
+
+Untuk penggunaan dua factor juga akan nilai factor loadings yang besar sudah tersebar. Oleh karena itu memungkinkan diinterpretasikan. 
+
+```{r}
+fa_jobApp2_rotate$communalities
+```
+
+Dalam penggunan 2 factor ini nilai _communality_ untuk terdapat peubah asal bernilai kecil (kurang dari 0.4) sehingga dengan penggunaan 2 factor kurang tepat.
+
+Dalam hal ini lebih baik menggunakan 4 factor saja, namun dalam ilustrasi ini 2 factor akan tetap digunakan untuk memperlihatkan perbedaan interpretasi dalam pemilihan banyaknya faktor digunakan.
+
+| Note: |
+| ---------- |
+| _Communalities_ bisa diperiksa saat sebelum kita melakukan rotasi. |
+
+#### Tahap 5 - Interpretasi Factor (Menggunakan 4 Factor)
+
+Untuk mempermudah interpretasi, factor loading yang ditampilkan selain [-0.6, 0.6].
+```{r}
+print(fa_jobApp4_rotate$loadings, cut = 0.6)
+```
+
+Pada penggunaan 4 factor, factor laoding hasil rotasi dapat diinterpretasikan sebagai berikut:
+
+a. _Accademic Records_, _Experience_, _Job Fit_, dan _Potential_ memiliki nilai factor loading yang besar dan positif untuk factor 1, kita bisa menyebut factor 1 sebagai **ketepatan penempatan dan potensi berkembang bagi pegawai dalam perusahaan**.
+b. _Communication_, _Company Fit_, dan _Organization_ memiliki nilai factor loading yang besar dan positif untuk factor 2 sehingga kita bisa menyebut factor 2 dengan **kemampuan dalam bekerja (_work skills_)**.  
+c. _Letter_ dan _Resume_ memiliki nilai factor loading yang besar dan positif untuk factor 3 sehingga kita bisa menyebut factor 3 dengan **kemampuan menulis**.
+d. _Appearance_, _Likeability_, and _Self Confidence_ memiliki nilai factor loading yang besar dan positif untuk faktor 4 sehingga kita bisa menyebut factor 4 dengan **kualitas personal pegawai**.
+
+#### Tahap 5 - Interpretasi Factor (Menggunakan 2 Factor)
+```{r}
+print(fa_jobApp2_rotate$loadings, cut = 0.6)
+```
+
+Pada penggunaan 2 factor, factor laoding hasil rotasi dapat diinterpretasikan sebagai berikut:
+
+a. _Appearance_, _Communication_, _Likeability_, dan _Organization_ memiliki nilai factor loading yang besar dan positif untuk factor 1, kita bisa menyebut factor 1 sebagai **_soft-skill_ dari pegawai**. 
+b. _Academic Record_, _Experience_, _Job Fit_, _Potential_, dan _Resume_ memiliki nilai factor loading yang besar dan positif untuk factor 2, kita bisa menyebut factor 2 sebagai **_hard-skill_ dari pegawai**.
+
+Berdasarkan penggunaan 4 factor dan 2 factor diperoleh interpretasi yang berbeda dari factor-factor yang dihasilkan. Sehingga penggunaan 4 factor atau 2 factor bisa disesuaikan dengan kebutuhan perusahaan tersebut.
+
+| Note: |
+| ---------- |
+| Berikut adalah contoh penerapan FA menggunakan R. Jika kalian mencoba metode pendugaan yang berbeda dan rotasi berbeda maupun jumlah factor berbeda kalian akan menemukan interpretasi yang berbeda pula. Tidak ada benar dan salah dalam interpretasi factor pada FA. |
