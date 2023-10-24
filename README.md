@@ -1,4 +1,4 @@
-# STA1342-Teknik Peubah Ganda (S1)
+# [STA1342-Teknik Peubah Ganda (S1)](https://krs.ipb.ac.id/mk/172260)
 `SKS: 3 (2-1)`  
 
 ### Deskripsi Mata Kuliah  
@@ -7,4 +7,4 @@ Mata kuliah ini membahas tentang inferensia berdasarkan contoh acak dari sebaran
 `Semester: 5`  
   
 ### Mata Kuliah Prasyarat:  
-`STA1201 - Aljabar Matriks`  
+[`STA1201 - Aljabar Matriks`](https://krs.ipb.ac.id/mk/172253)  
