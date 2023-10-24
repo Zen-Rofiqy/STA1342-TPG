@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "Tugas Pertemuan 2 TPG"
 author: "Angga Fathan Rofiqy"
@@ -90,3 +91,103 @@ royston
 ```
 
 Berdasarkan beberapa uji normalitas ganda di atas, dapat disimpulkan bahwa **data menyebar multivariat normal**.
+=======
+---
+title: "Tugas Pertemuan 2 TPG"
+author: "Angga Fathan Rofiqy"
+date: "`r Sys.Date()`"
+output:
+  word_document: default
+  html_document: default
+---
+
+File rmd, docx, pdf, excel : <https://github.com/Zen-Rofiqy/STA1342-TPG/tree/main/Tugas/Pertemuan%2002%20Tugas%201>
+
+### Set Working Directory
+
+```{r}
+repo  <- gsub  ( "\\\\",  "/",  readClipboard ()  ); repo
+```
+
+```{r setup, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/4. Teknik Peubah Ganda/02")
+```
+
+![](images/Screenshot%202023-08-23%20233143.png)
+
+### 1. Bangkitkan X1\~Unif(1,3) sebanyak 10 amatan (dengan R)
+
+```{r}
+set.seed(11006)
+x1 <- runif(n=10, min=1, max=3); x1
+```
+
+### 2. Bangkitkan X2\~Exp(5) sebanyak 10 amatan (dengan R)
+
+```{r}
+set.seed(11006)
+x2 <- rexp(n=10, rate=5); x2
+```
+
+Export Data
+
+```{r}
+x <- data.frame(x1,x2)
+library(writexl)
+write_xlsx(x, path = "Tugas.xlsx")
+```
+
+### 3. Gunakan set.seed(xxxxx) di mana xxxxx adalah 5 digit terakhir NRP Anda
+
+Sudah ya diatas ![](images/Screenshot%202023-08-24%20060550.png){width="187"} ![](images/Screenshot%202023-08-24%20060633.png){width="163"}. Kenapa saya lakukan demikian? Karena $\texttt{set.seed()}$ hanya bisa dipakai 1 kali pada setiap 1 *random function* seperti $\texttt{rnorm()}$. Jadi jika ada 2 *random function,* maka perlu $\texttt{set.seed()}$ 2 kali.
+
+### 4. Lakukan pengecekan apakah X1 dan X2 menyebar bivariate normal? Jelaskan! Lakukan pengujian baik secara visual maupun formal.
+
+#### i. Uji normalitas ganda menggunakan Mardia's Skewness
+
+```{r}
+library(MVN)
+mardia <- mvn(x, mvnTest = c("mardia"), covariance = TRUE, multivariatePlot = "qq")
+mardia
+```
+
+##### a. Pengujian Visual
+
+Terlihat bahwa titik-titik dalam **Chi-Square Q-Q plot** berada pada garis diagonal lurus. Ini menunjukan bahwa sebaran dari data **mengikuti distribusi normal ganda.**
+
+##### b. Pengujian Formal
+
+$H_0$ : Peubah ganda mengikuti distribusi normal\
+$H_1$ : Peubah ganda tidak mengikuti distribusi normal\
+Terlihat bahwa $p.value = 0.17 > α = 0.05$ , sehingga tidak ada cukup bukti untuk menolak $H_0$. Artinya bahwa peubah ganda **mengikuti distribusi normal ganda**.
+
+#### ii. Uji normalitas ganda menggunakan Henze-Zikler Test
+
+```{r}
+henze <- mvn(x, mvnTest = c("hz"), covariance = TRUE, multivariatePlot = "none")
+henze
+```
+
+Hasil dari Henze-Zirkler's Multivariate Normality Test menghasilkan nilai $p.value = 0.235 > α = 0.05$ . Ini mengindikasikan bahwa data mendukung $H_0$, dengan demikian dapat disimpulkan bahwa peubah-peubah tersebut **mengikuti distribusi normal**
+
+#### iii. Uji Normalitas ganda menggunakan Royston
+
+```{r}
+royston <- mvn(x, mvnTest = c("royston"), covariance = TRUE, multivariatePlot = "persp")
+royston
+```
+
+Hasil dari Royston Test menunjukkan nilai $p.value = 0.81 > α = 0.05$ . Hasil uji ini juga menunjukkan **data mendukung** $H_0$, sehingga dapat dikatakan bahwa variabel-variabel tersebut **mengikuti mengikuti distribusi normal ganda.**
+
+```{r}
+royston <- mvn(x, mvnTest = c("royston"), covariance = TRUE, multivariatePlot = "contour")
+royston
+```
+
+#### iv. Dengan menggunakan Excel 
+
+![](images/Screenshot 2023-08-24 170027.png)
+
+Berdasarkan beberapa uji normalitas ganda di atas, dapat disimpulkan bahwa **data menyebar bivariat normal**.
+>>>>>>> 970b9db500b0f6737d5fcbbdafcb8be8ea27a027
