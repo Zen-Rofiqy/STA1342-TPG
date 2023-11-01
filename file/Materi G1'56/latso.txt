@@ -1,0 +1,16 @@
+1. (B) 
+2. (B) matriks idempoten det nya hanya 0 atau 1
+3. (B) pengurangan transpose 
+4. (S) matriks segitiga atas tidak selalu memiliki determinan tidak nol. karna kalau
+	diagonalnya 0 maka detnya bisa 0
+5. (S)
+6. (S). Karena r(AB) = min(r(A), r(B))
+7. (B). matriks berpangkat penuh -> non singular det bukan nol
+8. (S). Karena B dan O akan mengikuti ukuran In seharusnya 2n x 2n berapapun n nya
+9. (B). itung ae ndiri
+10. (B). coba kalikan 
+
+Bagian 2 Pilgan 
+1. B
+2. B. itung korelasi pake rumus cov/akar perkalian ragam 
+3. 

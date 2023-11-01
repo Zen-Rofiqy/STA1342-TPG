@@ -1,0 +1,31 @@
+#---ANALISIS FAKTOR---#
+
+Laten variabel -> variabel yang tidak bisa diukur secara langsung.
+Laten variabel membutuhkan variabel lain untuk mengukur
+contoh: bentuk tubuh (bb & tb), intelegensi seseorang (iq), prestasi, literasi
+
+Karakteristik individu -> faktor 
+Faktor dicirikan oleh segugus peubah yang dapat diukur.
+
+Analisis faktor :
+- metode untuk mengammbarkan (jika ada) pola hubungan internal banyak peubah
+sehingga membentuk beberapa kelompok unobservable faktor yang memiliki makna. 
+- pengembangan dari AKU
+
+baris : individu (sejumlah n)
+kolom : peubah (sejumlah p)
+Struktur data amatan : n x p 
+
+Bedanya AF dengan AKU:
+Model AKU : fungsi liniear 
+Model faktor : vector X merupakan fungsi linear dari bbrp peubah acak unobservable 
+F1, F2, ..., Fm (disebut faktor umum/common factor) dan p sumber keragaman lainnya. 
+Model faktor dalam bentuk matriks :
+(x - miu) = L F + eror
+ket: 
+Lij : loading faktor 
+
+peubah F observable sehingga beta bisa diduga dengan mudah 
+peubah F unobservable sehingga faktor L tidak bisa diduga 
+
+Cara menduga parameter:

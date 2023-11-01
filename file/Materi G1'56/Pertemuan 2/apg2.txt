@@ -1,0 +1,11 @@
+Karakteristik sebaran normal : 
+• Berbentuk genta/lonceng 
+• Simetrik terhadap nilai tengah
+• Sisi kiri dan sisi kanan pusat berukuran sama 
+	P (miu – sigma < x < miu + sigma) = 0.683
+	P (miu – 2sigma < x < miu + 2sigma) = 0.954
+• Mean, median, modus terletak pada satu titik
+
+sifat-sifat sebaran normal ganda 
+- jika x1 normal dan x2 normal belum tentu x1 dan x2 normal ganda
+	tapi kalo x1 dan x2 normal ganda sudah pasti x1 normal dan x2 normal

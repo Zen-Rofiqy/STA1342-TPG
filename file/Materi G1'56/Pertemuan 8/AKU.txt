@@ -1,0 +1,15 @@
+AKU 
+Definisi:
+-> teknik transformasi data yg bertujuan untuk mereduksi peubah
+-> analisis antara untuk analisis lanjutan
+
+Ciri-ciri adanya multikolinearitas: 
+- standar deviasi besar, dampaknya pada uji T menjadi signifikan
+	R square besar, saat diuji F signifikan tapi pada uji T tidak signifikan
+- tanda koefisien regresi tidak sesuai dengan hub yg sesungguhnya
+
+---------------
+- banyaknya peubah KU = banyaknya peubah yg diamati 
+---------------
+
+Komponen utama -> kombinasi linier dari peubah aslinya 
