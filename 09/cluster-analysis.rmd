@@ -1,0 +1,293 @@
+# Analisis Gerombol / _Cluster Analysis_
+
+**Dhea Dewanti & Nur Khamidah**
+
+## Pendahuluan
+
+Analisis gerombol (_cluster analysis_) adalah sebuah teknik statistik yang digunakan untuk mengelompokkan objek atau data ke dalam kelompok-kelompok (gerombol atau _cluster_) berdasarkan kesamaan karakteristik atau atribut tertentu yang diperoleh dari peubah-peubah penciri yang ada.  Tujuan utama dari penggerombolan adalah untuk mengidentifikasi pola atau struktur dalam data yang memungkinkan objek-objek dalam kelompok memiliki kesamaan yang tinggi dan sebaliknya memiliki perbedaan yang tinggi antara kelompok-kelompok yang berbeda.
+
+Konsep dasar dalam penggerombolan adalah mengukur sejauh mana objek-objek dalam data mirip satu sama lain menggunakan dengan ukuran kesamaan atau jarak. Ukuran ini dapat berbeda tergantung pada metode pengelompokan yang digunakan. Jarak antara 2 objek `a` dan `b` dinotasikan dengan `d(a,b)`, di mana:
+
+- Jarak 2 objek yang berbeda tidak mungkin bernilai negatif (`d(a,b)` ≥ 0)
+- Jarak 2 objek yang sama bernilai nol (`d(a,a) = 0`)
+- Jarak 2 objek bersifat komutatif (`d(a,b) = d(b,a)`)
+- Jarak 2 objek berbanding terbalik dengan kemiripannya (semakin kecil keduanya, semakin mirip)
+- Jarak bersifat aditif (`d(a,c) ≤ d(a,b) + d(b,c)`)
+
+Beberapa konsep jarak yang sering dipakai antara lain:
+
+- **_Jarak Euclidean_** : mengukur jarak antara dua titik berdimensi _p_, di mana biasanya digunakan ketika data berdimensi rendah. 
+
+    $d(a,b) = \sqrt{\sum_{i=1}^p{(a_i - b_i)^2}}$
+
+- **_Jarak Manhattan_** : dikenal sebagai jarak L1, jarak taksi, atau jarak _city-block_, mengukur jarak antara dua titik sebagai jumlah perpindahan vertikal dan horizontal yang diperlukan untuk bergerak dari satu titik ke titik lainnya. Jika ingin mengurangi dampak pencilan pada data, maka jarak ini dapat dipilih.
+
+    $d(a,b) = \sum_{i=1}^p{|a_i - b_i|}$
+
+- **_Jarak Chebyshev_** : mengukur jarak maksimum antara dua titik dalam semua dimensi. 
+
+    $d(a,b) = (\max_{i=1}^p{|a_i - b_i|})$
+
+- **_Jarak Minkowski_** : merupakan generalisasi dari jarak Euclidean dan Manhattan. 
+
+    $d(a,b) = (\sum_{i=1}^p{|a_i - b_i|^p})^{1/p}$
+
+- **_Jarak Hamming_** : Jarak Hamming digunakan untuk data kategorikal atau biner. Ini menghitung jumlah atribut yang berbeda antara dua objek. Jarak Hamming biasanya digunakan dalam pengelompokan data seperti data teks atau data genetik.
+
+- **_Jarak Mahalanobis_** : mempertimbangkan kovariabilitas antara peubah, di mana jarak ini berguna saat peuabah-peubahnya saling berkorelasi.
+
+    $d(a,b) = \sqrt{(\mathbf{a} - \mathbf{b})' \mathbf{S}^{-1}(\mathbf{a} - \mathbf{b})}$
+
+Ada tiga jenis teknik penggerombolan, sebagai berikut:
+
+- **Metode grafik** (sangat subjektif)
+- **Metode hierarki / _hierarchical clustering_** (proses mengelompokkan objek atau data ke dalam hierarki atau pohon berjenjang (dendogram)). Terdapat dua jenis metode ini antara lain: _agglomerative_ dan _divisive_ clustering.
+- **Metode non-hierarki / _non-hierarchical clustering_** (proses mengelompokkan objek dalam satu tingkat tanpa hierarki atau struktur pohon). Beberapa contoh metode ini antara lain: K-Means, K-Medoids, DBSCAN (_Density-Based Spatial Clustering of Applications with Noise_), dan lain-lain.
+
+## _K-Means Clustering_
+
+K-Means adalah salah satu metode pengelompokan yang paling populer. Tujuannya adalah membagi objek ke dalam `k` gerombol yang telah ditentukan sebelumnya, di mana `k` adalah jumlah gerombol yang diinginkan. Algoritma K-Means mencari pusat (_centroid_) kelompok yang optimal dengan cara mengoptimalkan jarak rata-rata antara anggota kelompok dan pusat kelompok. Objek-objek kemudian ditempatkan dalam kelompok terdekat (berdasarkan jarak Euclidean atau metrik jarak lainnya) ke pusat kelompok. Kelebihan metode ini adalah efisiensi dan kemudahannya.
+
+K-Means rentan terhadap kehadiran _outlier_, yang dapat memengaruhi lokasi pusat kelompok. Untuk mengatasi ini, mungkin perlu mengidentifikasi dan mengatasi outlier sebelum atau setelah menjalankan K-Means. K-Means dilakukan dengan mengikuti prosedur berikut:
+
+1. _Pre-processing_ data
+2. Memilih banyaknya gerombol
+3. Menerapkan K-Means
+4. Interprestasi gerombol yang terbentuk
+
+## Contoh Kasus K-Means
+
+Seorang pemilik Mall ingin mengelompokan customer di Mall yang ia miliki, sehingga tim marketing bisa mengembangkan strategi yang tepat untuk customer yang tepat pula. Data yang dimiliki oleh Mall tersebut adalah **Customer ID**, **umur pelanggan (_age_)**, **pendapatan tahunan dalam ribu dollar (_annual income_)**, dan **_spending score_**. Spending score merupakan nilai yang diberikan oleh Mall kepada customer berbasarkan perilaku customer (waktu kunjungan,jenis barang yang dibeli, dan banyaknya uang yang dihabiskan dalam belanja) yang memiliki rentang nilai 1-100. Semakin besar nilai Spending Score berarti customer semakin loyal pada Mall tersebut dan semakin besar pula uang belanja yang digunakan.
+
+### Menyiapkan _Package_
+
+```{r}
+#install.packages("factoextra")
+library("factoextra")
+```
+
+### Menyiapkan Data
+
+```{r}
+data_mall <- read.csv("https://raw.githubusercontent.com/nurkhamidah/dat/main/mall_customers.csv", sep = ",")
+head(data_mall)
+```
+
+### _Pre-processing_ Data
+
+Peubah yang digunakan untuk menerapkan K-Means adalah peubah `Age AnnualIncome` dan `Spending Score` (numerik). Oleh karena itu peubah yang tidak kita gunakan akan kita hilangkan tersebih dahulu.
+
+```{r}
+data_mall <- data_mall[,c("Age","Annual.Income","Spending.Score")]
+head(data_mall)
+```
+
+### Standardisasi Peubah
+
+Standardisasi peubah merupakan proses transformasi peubah menjadi peubah yang memiliki rata-rata = 0 dan simpangan baku = 1. Proses standardisasi ini dilakukan jika kita melihat perbedaan satuan pengukuran peubah-peubah yang digunakan contoh (umur dan pendapatan). Standardisasi dilakukan karena metode K-Means menggunakan konsep jarak antara objek/amatan, yang mana sensitif terhadap satuan pengukuran. Formula untuk standardisasi data adalah sebagai berikut:
+
+$y' = \frac{y-\bar{y}}{\sigma_y}$
+
+Di mana:
+
+- $\bar{y}$ : rataan $y$
+- $\sigma_y$ : simpangan baku $y$
+
+Dengan R, standardisasi dilakukan dengan fungsi `scale()`.
+
+```{r}
+data_mall_standardize <- scale(data_mall) 
+```
+
+Jika kita perhatikan rata-rata peubah setelah distandardisasi mendekati nol.
+```{r}
+apply(data_mall_standardize, 2, mean)
+```
+
+Dan simpangan baku dari peubah setelah distandardisasi mendekati satu.
+```{r}
+apply(data_mall_standardize, 2, sd)
+```
+
+| **Note** |
+|----------|
+| Dalam tahapan _pre-processing_ data, kita menyiapkan data agar metode K-Means bisa diterapkan secara maksimal. Dua hal yang umumnya dilakukan pada tahap ini adalah memilih peubah yang digunakan dan melakukan standarisasi peubah. |
+
+### Memilih Banyaknya Gerombol
+
+Umumnya, banyaknya gerombol dapat ditentukan dengan menggunakan beberapa kriteria statistik, seperti koefisien **_silhouette_** dan **WSS** atau (_Within Sum of Square_).
+
+- Kriteria koefisien _silhouette_ dihitung berdasarkan jarak antar amatan. Koefisien ini mengukur seberapa dekat suatu amatan dengan amatan lain yang berada di gerombol yang sama (dikenal sebagai ukuran _cohesion_) dibandingkan dengan jarak terhadap amatan lain yang berada di gerombol berbeda (dikenal sebagai ukuran _separation_). Koefisien yang nilainya semakin besar menunjukkan bahwa gerombol yang terbentuk sudah sesuai.
+
+- Kriteria WSS merupakan kriteria yang menghitung keragamaan dalam gerombol yang terbentuk. Semakin kecil keragaman dalam gerombol yang terbentuk menunjukkan bahwa gerombol yang terbentuk sudah sesuai.
+
+Dengan menggunakan kriteria tersebut, kita bisa membandingkan banyaknya gerombol yang paling sesuai pada data yang kita sedang analisis. Dalam R, fungsi `fviz_nbclust()` dari _package_ 1factoextra1 dapat digunakan untuk memilih banyaknya gerombol.
+
+```{r}
+fviz_nbclust(data_mall_standardize, FUNcluster = kmeans, method = "silhouette")
+fviz_nbclust(data_mall_standardize, FUNcluster = kmeans, method = "wss")
+```
+
+Untuk kriteria koefisien _silhouette_, banyaknya gerombol dengan **nilai koefisien tertinggi** yang kita pilih. Sedangkan pada WSS, banyaknya gerombol yang kita pilih didasarkan pada banyaknya gerombol yang mana garisnya **berbentuk seperti siku (_elbow_)**. Pada gambar diatas garis membentuk siku saat berada di gerombol keempat. **Karena penentuan ini berdasarkan visual, jadi setiap orang mungkin berbeda melihat pola sikunya.**
+
+Berdasarkan kedua kriteria tersebut, banyaknya gerombol terbaik yang dipilih berbeda. Jika demikian, banyaknya gerombol bisa ditentukan berdasarkan kemudahan interpretasi gerombol yang terbentuk. Pada tulisan ini kita akan menggunakan 4 gerombol saja.
+
+| **Note** |
+|----------|
+| Secara default banyaknya gerombol yang dicobakan pada fungsi `fviz_nbclust()` adalah 10, jika ingin merubah hal tersebut bisa dilakukan dengan menggunakan argumen `kmax` dalam fungsi, misal `kmax = 20`. |
+
+### Menerapkan K-Means
+
+Setelah kita mendapatkan banyaknya gerombol terbaik, maka selajutnya kita akan menerapkan metode K-Means untuk mendapatkan label gerombol pada setiap amatan. Fungsi eclust dari _package_ `factoextra` digunakan untuk menerpkan metode K-Means. Pada fungsi `eclust()`, kita cukup memasukan data yang sebelum distandardisasi, karena dalam fungsi tersebut terdapat argumen `stand`, yang jika diatur `stand = TRUE` secara otomatis data yang kita gunakan akan distandardisasi.
+
+```{r}
+kmeans_mall <- eclust(data_mall, stand = TRUE, FUNcluster = "kmeans", k=4, graph = F) 
+```
+
+Memanggil label gerombol untuk setiap amatan dilakukan dengan:
+```{r}
+kmeans_mall$cluster
+```
+
+Kemu- dian,interpretasi setiap gerombol yang terbentuk dapat dilakukan dengan menggunakan bantuan nilai rata-rata dari masing-masing peubah dihitung berdasarkan gerombol. Informasi ini bisa diperoleh dengan menggunakan `$centers`. Karena kita melakukan standardisasi peubah, maka nilai rata-rata yang diperoleh juga dalam skala standardisasi.
+```{r}
+kmeans_mall$centers
+```
+
+### Interpretasi Gerombol yang terbentuk
+
+Berdasarkan nilai rata-rata dari `$centers`, berikut adalah interpretasinya:
+
+- Gerombol 1 : gerombol ini merupakan customer-customer yang cukup muda (peubah **Age** bernilai kecil) dan berpenghasilan besar (peubah **Income** bernilai besar) namun sedikit sekali menghabiskan uangnya untuk berbelanja (peubah **Spending Score** bernilai kecil bahkan negatif).
+- Gerombol 2 : gerombol ini merupakan customer-customer yang sudah tua (peubah **Age** bernilai besar) dan berpenghasilan kecil (peubah **Income** bernilai kecil) dan sedikit sekali menghabiskan uangnya untuk berbelanja (peubah **Spending Score** bernilai kecil). Gerombol ini mungkin murupakan customer yang sudah pensiun dan hanya memiliki pemasukan dari tunjangan pensiun.
+- Gerombol 3 : gerombol ini merupakan customer-customer yang masih sangat muda (peubah **Age** bernilai kecil) dan berpenghasilan kecil (peubah **Income** bernilai kecil) namun menghabiskan uangnya untuk berbelanja cukup besar (peubah **Spending Score** bernilai besar). Gerombol ini mungkin murupakan customer yang aneh, karena memiliki penghasilan yang kecil namun belanjanya banyak.
+- Gerombol 4 : gerombol ini merupakan customer-customer yang masih cukup muda (peubah **Age** bernilai kecil) dan berpenghasilan besar (peubah **Income** bernilai besar) namun menghabiskan uangnya untuk berbelanja cukup besar (peubah **Spending Score** bernilai besar). Gerombol ini mungkin murupakan customer yang paling menarik untuk menjadi target marketing selanjutnya.
+
+Jika sulit membaca hasil dalam bentuk skala standardisasi maka kita bisa menggunakan fungsi `aggregate()` untuk melihat rata-ratanya dalam skala aslinya. Fungsi ini dapat menghitung rata-rata setiap peubah berdasarkan gerombol yang terbentuk.
+
+```{r}
+aggregate(data_mall, by =list(gerombol = kmeans_mall$cluster), FUN = mean)
+fviz_cluster(kmeans_mall)
+```
+
+Cara lain untuk menginterpretasikan hasil gerombol adalah menggunakan scatterplot. Jika peubah untuk membangun cluster lebih dari dua, maka sebelum dibentuk _scatterplot_ peubah tersebut direduksi terlebih dahulu menggunakan analisis komponen utama menjadi dua komponen utama. Namun, untuk interpretasinya setiap gerombolnya kita harus mengetahui interpretasi dari kedua komponen utama dan belum tentu dengan dua komponen utama tersebut sudah mampu menjelaskan keragaman data asal dengan baik.
+
+Interpretasi dua komponen utama bisa dilihat dengan akar cirinya.
+```{r}
+pca_mall <- prcomp(data_mall_standardize) 
+pca_mall$rotation
+```
+
+## _Hierarchical Clustering_
+
+_Hierarchical clustering_ menghasilkan hierarki yang dapat dilihat dalam bentuk dendrogram. Dendrogram ini menunjukkan cara objek-objek tersebut dikelompokkan dalam kelompok-kelompok yang berjenjang, dan dapat dipilih sejauh mana tingkat hierarki yang ingin dieksplorasi dengan memotong dendrogram pada tingkat yang sesuai.
+
+Dua jenis _hierarchical clustering_:
+
+- _**Agglomerative Clustering**_ : Dalam metode _agglomerative_, proses dimulai dengan menganggap setiap objek sebagai kelompok tunggal, dan kemudian objek-objek tersebut bergabung dalam kelompok yang semakin besar berdasarkan kesamaan mereka.
+- _**Divisive Clustering**_ : Dalam metode _divisive_, proses dimulai dengan menganggap semua objek sebagai satu kelompok besar, dan kemudian kelompok ini dibagi menjadi kelompok yang semakin kecil berdasarkan perbedaan antara objek-objeknya.
+
+Pemilihan jenis _linkage_ (cara mengukur jarak antara kelompok) dalam _hierarchical clustering_ adalah keputusan penting dalam analisis gerombol ini. _Linkage_ mempengaruhi bagaimana kelompok-kelompok dibentuk dan hierarki yang dihasilkan dalam dendrogram. Beberapa jenis _linkage_ antara lain:
+
+1. _Single linkage_ (berdasarkan jarak terdekat antara anggota kelompok)
+2. _Complete linkage_ (berdasarkan jarak terjauh antara anggota kelompok)
+3. _Average linkage_ (berdasarkan jarak rataan antara anggota kelompok)
+4. _Ward's Method_ (berdasarkan variansi dalam anggota kelompok)
+5. _Centroid Linkage_ (berdasarkan centroid antara anggota kelompok)
+
+Tahap analisis gerombol dengan _hierarchical clustering_:
+1. _Pre-processing_ data
+2. Memilih metode _linkage_ dan banyaknya gerombol
+3. Menerapkan _Hierarchical Clustering_
+4. Interprestasi gerombol yang terbentuk
+
+## Contoh Kasus
+
+Contoh kasus yang digunakan adalah kasus yang sama dengan contoh sebelumnya, dengan data yang dipakai adalah data numerik yang distandardisasi sebagaimana data pada contoh sebelumnya.
+
+```{r}
+head(data_mall_standardize)
+```
+
+### Memilih Metode _Linkage_ Banyaknya Gerombol
+
+Untuk memilih metode linkage dan banyaknya gerombol bisa menggunakan
+
+1. Koefisien _silhoutte_ dan WSS (seperti K-Means) 
+2. Menggunakan dendogram
+
+##### Menggunakan koefisien _silhouette_ dan WSS
+
+Untuk ilustrasi kita akan menggunakan metode _silhouette_ saja karena lebih mudah menentukan jumlah gerombolnya.
+
+```{r}
+# complete
+fviz_nbclust(data_mall_standardize, FUNcluster = hcut, method = "silhouette", hc_method = "complete", hc_metric = "euclidean")
+# average
+fviz_nbclust(data_mall_standardize, FUNcluster = hcut, method = "silhouette", hc_method = "average", hc_metric = "euclidean")
+# centroid
+fviz_nbclust(data_mall_standardize, FUNcluster = hcut, method = "silhouette", hc_method = "centroid", hc_metric = "euclidean")
+# ward
+fviz_nbclust(data_mall_standardize, FUNcluster = hcut, method = "silhouette", hc_method = "ward.D", hc_metric = "euclidean")
+```
+
+Berdasarkan koefisien _silhouette_, metode **_complete_** dan **_average_** memilih 5 gerombol, sedangkan metode **_centroid_** dan **_ward_** masing-masing memilih 2 dan 6 gerombol. Untuk saat ini, kita akan mencoba menggunakan 5 gerombol dengan metode **_complete_** (Jika dua metode _linkage_ memilih banyaknya gerombol yang sama, gerombol yang terbentuk akan relatif mirip, oleh karena itu bisa pilih salah satu).
+
+##### Menggunakan dendogram
+
+Penggunaan dendogram untuk data yang memiliki amatan yang banyak mungkin tidak efektif karena memilih gerombol dengan dendogram dilakukan secara visual.
+
+```{r}
+linkage_methods <- c("complete", "average", "centroid", "ward.D") 
+hc_mall_dend <- lapply(linkage_methods, function(i)
+    hclust(dist(data_mall_standardize, method = 'euclidean'), method = i)
+    )
+```
+
+```{r}
+# complete
+fviz_dend(hc_mall_dend[[1]])
+```
+
+```{r}
+# average
+fviz_dend(hc_mall_dend[[2]])
+```
+
+```{r}
+# centroid
+fviz_dend(hc_mall_dend[[3]])
+```
+
+```{r}
+# ward
+fviz_dend(hc_mall_dend[[4]])
+```
+
+Jika diperhatikan dari keempat dendogram pada masing-masing metode _linkage_, banyaknya gerombol yang terbentuk sama seperti menggunakan keofisien _silhouette_ diatas.
+
+### Menerapkan _Hierarchical Clustering_
+
+```{r}
+hc_mall <- eclust(data_mall,stand = TRUE,FUNcluster = "hclust", k=5, hc_method = "complete", hc_metric = "euclidean")
+hc_mall$cluster
+```
+
+### Interprestasi Gerombol yang terbentuk
+
+Coba lakukan interpretasi gerombol seperti metode kmeans diatas.
+
+```{r}
+aggregate(data_mall,by =list(gerombol=hc_mall$cluster), FUN = mean)
+```
+
+```{r}
+fviz_cluster(hc_mall)
+```
+
+Interpretasi dua komponen utama bisa dilihat dengan akar cirinya.
+
+```{r}
+pca_mall <- prcomp(data_mall_standardize)
+pca_mall$rotation
+```
